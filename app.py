@@ -11,7 +11,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 # ----------------- Configuration & Hardcoded API Key -----------------
 # Paste your Groq API key below to hardcode it, or leave it blank to enter via the UI
-HARDCODED_GROQ_API_KEY = "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"
+HARDCODED_GROQ_API_KEY = API_KEY
 
 st.set_page_config(
     page_title="Titan BL-Verify Assistant",
