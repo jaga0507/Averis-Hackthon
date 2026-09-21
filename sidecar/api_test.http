@@ -1,0 +1,63 @@
+### PHP API health
+GET http://localhost:8000/health
+
+
+### Database health
+GET http://localhost:8000/health/db
+
+
+### Python sidecar health through PHP
+GET http://localhost:8000/processing/health
+
+
+### Process test email
+POST http://localhost:8000/processing/email
+Content-Type: application/json
+
+{
+  "email_id": "test_001",
+  "from": "test@example.com",
+  "subject": "Check draft bill of lading",
+  "body": "Please compare the draft BL against the shipping instruction.",
+  "attachments": []
+}
+
+### Existing cases
+GET http://localhost:8000/cases
+
+
+### Existing case with documents
+GET http://localhost:8000/cases/d801e897-9fcc-5557-92d7-7a4a8eeaaf9e
+
+
+
+### Process existing SH-1001 email
+POST http://localhost:8000/processing/email
+Content-Type: application/json
+
+{
+  "email_id": "email_001",
+  "from": "aziztz@safqa.co.ke",
+  "subject": "TO CONFIRM DOCS _ 5RSG-00133 _ CALLAO_PERU _ MOORIM SP CO., LTD _ MEDUUD104332",
+  "body": "Hi Najiha,\n\nAttached are the SI and draft BL for OC 5RSG-00133 (PAPERONE DIGITAL COPIER PAPER). Please check the details and confirm.\n\nBest Regards,\nWilly Situmorang",
+  "attachments": [
+    {
+      "file_name": "email_001_SI.txt",
+      "mime_type": "text/plain",
+      "storage_path": "attachments/email_001_SI.txt"
+    },
+    {
+      "file_name": "email_001_BL.txt",
+      "mime_type": "text/plain",
+      "storage_path": "attachments/email_001_BL.txt"
+    }
+  ]
+}
+
+
+
+### Process existing SH-1001 case
+POST http://localhost:8000/processing/case/d801e897-9fcc-5557-92d7-7a4a8eeaaf9e
+
+###
+POST http://localhost:8000/processing/case/d801e897-9fcc-5557-92d7-7a4a8eeaaf9e

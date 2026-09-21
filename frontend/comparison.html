@@ -1,0 +1,1031 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Comparison Profile - TitanPort</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+
+<body class="bg-slate-50 text-slate-900">
+
+<div class="max-w-7xl mx-auto px-6 py-8">
+
+
+    <!-- HEADER -->
+
+    <div class="flex items-center justify-between mb-8">
+
+        <div>
+
+            <div class="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                Document Comparison
+            </div>
+
+            <h1 class="text-2xl font-bold mt-1">
+                Comparison Profile
+            </h1>
+
+            <p
+                id="case-title"
+                class="text-sm text-slate-500 mt-1"
+            >
+                Loading...
+            </p>
+
+        </div>
+
+
+        <div class="flex gap-3">
+
+            <a
+                id="back-case"
+                href="#"
+                class="px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50"
+            >
+                ← Case
+            </a>
+
+            <a
+                href="cases.html"
+                class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
+            >
+                All Cases
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- LOADING -->
+
+    <div
+        id="loading"
+        class="bg-white border border-slate-200 rounded-xl p-10 text-center"
+    >
+
+        <div class="text-sm text-slate-500">
+            Loading comparison...
+        </div>
+
+    </div>
+
+
+
+    <!-- ERROR -->
+
+    <div
+        id="error"
+        class="hidden bg-red-50 border border-red-200 rounded-xl p-6 mb-6"
+    >
+
+        <div class="font-semibold text-red-700">
+            Failed to load comparison
+        </div>
+
+        <div
+            id="error-message"
+            class="text-sm text-red-600 mt-2"
+        ></div>
+
+    </div>
+
+
+
+    <!-- MAIN CONTENT -->
+
+    <div
+        id="content"
+        class="hidden"
+    >
+
+
+        <!-- DOCUMENT HEADER -->
+
+        <div class="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+
+            <div class="flex items-center justify-between">
+
+                <div>
+
+                    <h2 class="text-lg font-semibold">
+                        SI vs Draft BL
+                    </h2>
+
+                    <p class="text-sm text-slate-500 mt-1">
+
+                        Field-by-field normalized comparison for shipment
+
+                        <span
+                            id="shipment-ref"
+                            class="font-medium text-slate-700"
+                        >
+                            —
+                        </span>
+
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="overall-result"
+                    class="px-4 py-2 rounded-full text-sm font-semibold"
+                >
+                    —
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SUMMARY -->
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+
+            <div class="bg-white border border-slate-200 rounded-xl p-5">
+
+                <div class="text-xs uppercase tracking-wide text-slate-400">
+                    Fields Compared
+                </div>
+
+                <div
+                    id="fields-count"
+                    class="text-2xl font-bold mt-2"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="bg-white border border-slate-200 rounded-xl p-5">
+
+                <div class="text-xs uppercase tracking-wide text-slate-400">
+                    Mismatches
+                </div>
+
+                <div
+                    id="mismatch-count"
+                    class="text-2xl font-bold mt-2"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="bg-white border border-slate-200 rounded-xl p-5">
+
+                <div class="text-xs uppercase tracking-wide text-slate-400">
+                    Overall Confidence
+                </div>
+
+                <div
+                    id="confidence"
+                    class="text-2xl font-bold mt-2"
+                >
+                    —
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- COMPARISON MATRIX -->
+
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden mb-6">
+
+            <div class="px-6 py-5 border-b border-slate-200">
+
+                <h2 class="font-semibold text-lg">
+                    Comparison Matrix
+                </h2>
+
+                <p class="text-sm text-slate-500 mt-1">
+                    Normalized values are shown alongside the original extracted values.
+                </p>
+
+            </div>
+
+
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full">
+
+                    <thead class="bg-slate-50 border-b border-slate-200">
+
+                        <tr>
+
+                            <th class="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Field
+                            </th>
+
+                            <th class="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Shipping Instruction
+                            </th>
+
+                            <th class="text-left px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Draft BL
+                            </th>
+
+                            <th class="text-center px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Result
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="comparison-body"
+                        class="divide-y divide-slate-100"
+                    >
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PROCESSING TRACE -->
+
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+
+            <div class="px-6 py-5 border-b border-slate-200">
+
+                <h2 class="font-semibold text-lg">
+                    Processing Trace
+                </h2>
+
+            </div>
+
+
+            <div
+                id="trace"
+                class="p-6"
+            ></div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+const API_BASE = "http://localhost:8000";
+
+
+const params =
+    new URLSearchParams(window.location.search);
+
+
+const caseId =
+    params.get("id");
+
+
+
+/* --------------------------------------------------
+   HELPERS
+-------------------------------------------------- */
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+
+function fieldLabel(field) {
+
+    const labels = {
+
+        shipper: "Shipper",
+
+        consignee: "Consignee",
+
+        notify_party: "Notify Party",
+
+        port_of_loading: "Port of Loading",
+
+        port_of_discharge: "Port of Discharge",
+
+        container_count: "Container Count",
+
+        gross_weight_kg: "Gross Weight"
+
+    };
+
+    return labels[field] ?? field;
+
+}
+
+
+
+function displayValue(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+
+        return "—";
+
+    }
+
+    return String(value);
+
+}
+
+
+
+/* --------------------------------------------------
+   RENDER COMPARISON
+-------------------------------------------------- */
+
+
+function renderComparison(comparison) {
+
+
+    const items =
+        comparison?.items ?? [];
+
+
+    const body =
+        document.getElementById(
+            "comparison-body"
+        );
+
+
+    if (!items.length) {
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="4"
+                    class="px-6 py-10 text-center text-sm text-slate-500"
+                >
+                    No comparison fields were returned by the API.
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    let matches = 0;
+
+    let mismatches = 0;
+
+
+    body.innerHTML =
+        items.map(item => {
+
+
+            const isMatch =
+                item.is_match === true;
+
+
+            if (isMatch) {
+
+                matches++;
+
+            } else {
+
+                mismatches++;
+
+            }
+
+
+            const field =
+                fieldLabel(item.field);
+
+
+            const siRaw =
+                displayValue(item.si_raw);
+
+
+            const siNormalized =
+                displayValue(item.si_normalized);
+
+
+            const blRaw =
+                displayValue(item.bl_raw);
+
+
+            const blNormalized =
+                displayValue(item.bl_normalized);
+
+
+
+            return `
+
+                <tr class="hover:bg-slate-50">
+
+
+                    <!-- FIELD -->
+
+                    <td class="px-6 py-5 align-top">
+
+                        <div class="font-semibold text-sm text-slate-800">
+                            ${escapeHtml(field)}
+                        </div>
+
+                        <div class="text-xs text-slate-400 mt-1">
+                            ${escapeHtml(item.field)}
+                        </div>
+
+                    </td>
+
+
+
+                    <!-- SI -->
+
+                    <td class="px-6 py-5 align-top">
+
+                        <div class="text-sm font-medium text-slate-800">
+                            ${escapeHtml(siRaw)}
+                        </div>
+
+                        <div class="mt-2">
+
+                            <span class="text-[10px] uppercase tracking-wide text-slate-400">
+                                Normalized value
+                            </span>
+
+                            <div class="text-xs text-slate-500 mt-1">
+                                ${escapeHtml(siNormalized)}
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+
+                    <!-- BL -->
+
+                    <td class="px-6 py-5 align-top">
+
+                        <div class="text-sm font-medium text-slate-800">
+                            ${escapeHtml(blRaw)}
+                        </div>
+
+                        <div class="mt-2">
+
+                            <span class="text-[10px] uppercase tracking-wide text-slate-400">
+                                Normalized value
+                            </span>
+
+                            <div class="text-xs text-slate-500 mt-1">
+                                ${escapeHtml(blNormalized)}
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+
+                    <!-- RESULT -->
+
+                    <td class="px-6 py-5 text-center align-top">
+
+                        ${
+                            isMatch
+
+                            ? `
+
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
+
+                                    ✓ MATCH
+
+                                </span>
+
+                              `
+
+                            : `
+
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-semibold">
+
+                                    ✕ MISMATCH
+
+                                </span>
+
+                              `
+                        }
+
+                    </td>
+
+
+                </tr>
+
+            `;
+
+
+        }).join("");
+
+
+
+    /*
+        Update summary.
+    */
+
+    document.getElementById(
+        "fields-count"
+    ).textContent =
+        items.length;
+
+
+    document.getElementById(
+        "mismatch-count"
+    ).textContent =
+        mismatches;
+
+
+
+    /*
+        Overall result.
+    */
+
+    const overall =
+        document.getElementById(
+            "overall-result"
+        );
+
+
+    if (mismatches === 0) {
+
+        overall.textContent =
+            "✓ MATCH";
+
+        overall.className =
+            "px-4 py-2 rounded-full text-sm font-semibold bg-emerald-50 text-emerald-700";
+
+    } else {
+
+        overall.textContent =
+            `${mismatches} MISMATCH${mismatches === 1 ? "" : "ES"}`;
+
+        overall.className =
+            "px-4 py-2 rounded-full text-sm font-semibold bg-red-50 text-red-700";
+
+    }
+
+}
+
+
+
+/* --------------------------------------------------
+   RENDER TRACE
+-------------------------------------------------- */
+
+
+function renderTrace(trace) {
+
+
+    const container =
+        document.getElementById("trace");
+
+
+    /*
+        Your Python processing trace may be an array.
+    */
+
+    if (Array.isArray(trace)) {
+
+        container.innerHTML = `
+
+            <div class="space-y-3">
+
+                ${
+                    trace.map((step, index) => `
+
+                        <div class="flex items-center gap-4">
+
+                            <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-bold">
+                                ${index + 1}
+                            </div>
+
+                            <div>
+
+                                <div class="text-sm font-semibold">
+                                    ${escapeHtml(
+                                        typeof step === "string"
+                                            ? step
+                                            : (
+                                                step.name ??
+                                                step.step ??
+                                                step.action ??
+                                                `STEP ${index + 1}`
+                                            )
+                                    )}
+                                </div>
+
+                                <div class="text-xs text-emerald-600 mt-1">
+                                    COMPLETED
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    `).join("")
+                }
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+
+    /*
+        If trace is an object, display it safely.
+    */
+
+    if (
+        trace &&
+        typeof trace === "object"
+    ) {
+
+        container.innerHTML = `
+
+            <pre class="bg-slate-50 rounded-lg p-4 text-xs overflow-auto whitespace-pre-wrap">${escapeHtml(
+                JSON.stringify(trace, null, 2)
+            )}</pre>
+
+        `;
+
+        return;
+
+    }
+
+
+
+    /*
+        No trace.
+    */
+
+    container.innerHTML = `
+
+        <div class="text-sm text-slate-400">
+            No processing trace available.
+        </div>
+
+    `;
+
+}
+
+
+
+/* --------------------------------------------------
+   LOAD CASE
+-------------------------------------------------- */
+
+
+async function loadComparison() {
+
+
+    const loading =
+        document.getElementById("loading");
+
+
+    const content =
+        document.getElementById("content");
+
+
+    const error =
+        document.getElementById("error");
+
+
+
+    if (!caseId) {
+
+        loading.classList.add("hidden");
+
+        error.classList.remove("hidden");
+
+        document.getElementById(
+            "error-message"
+        ).textContent =
+            "No case ID was supplied in the URL.";
+
+        return;
+
+    }
+
+
+
+    /*
+        Back button.
+    */
+
+    document.getElementById(
+        "back-case"
+    ).href =
+        `case-detail.html?id=${encodeURIComponent(caseId)}`;
+
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                `${API_BASE}/cases/${encodeURIComponent(caseId)}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+
+
+        const responseText =
+            await response.text();
+
+
+        console.log(
+            "CASE RESPONSE STATUS:",
+            response.status
+        );
+
+
+        console.log(
+            "CASE RESPONSE:",
+            responseText
+        );
+
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `GET /cases/${caseId} returned HTTP ${response.status}`
+            );
+
+        }
+
+
+
+        let payload;
+
+
+        try {
+
+            payload =
+                JSON.parse(responseText);
+
+        } catch {
+
+            throw new Error(
+                "The API returned invalid JSON."
+            );
+
+        }
+
+
+
+        console.log(
+            "PARSED CASE:",
+            payload
+        );
+
+
+
+        /*
+            Support both:
+
+            {
+                case: {...},
+                comparison: {...}
+            }
+
+            and:
+
+            {
+                data: {
+                    case: {...},
+                    comparison: {...}
+                }
+            }
+        */
+
+        const data =
+            payload.data ??
+            payload.result ??
+            payload;
+
+
+
+        const caseData =
+            data.case ??
+            {};
+
+
+
+        const comparison =
+            data.comparison ??
+            data.latest_comparison ??
+            data.latestComparison ??
+            null;
+
+
+
+        if (!comparison) {
+
+            throw new Error(
+                "The API response does not contain a comparison object."
+            );
+
+        }
+
+
+
+        console.log(
+            "COMPARISON:",
+            comparison
+        );
+
+
+
+        /*
+            Header.
+        */
+
+        document.getElementById(
+            "case-title"
+        ).textContent =
+            caseData.case_ref
+                ? `${caseData.case_ref} — ${caseData.title ?? ""}`
+                : "Comparison";
+
+
+
+        document.getElementById(
+            "shipment-ref"
+        ).textContent =
+            caseData.shipment_ref ??
+            "—";
+
+
+
+        /*
+            Confidence.
+
+            Accept values like:
+
+            0.99
+            "0.990"
+            99
+            "99%"
+        */
+
+        let confidence =
+            comparison.confidence ??
+            comparison.overall_confidence ??
+            caseData.classification_confidence ??
+            null;
+
+
+
+        if (confidence !== null) {
+
+            let numeric =
+                parseFloat(
+                    String(confidence).replace("%", "")
+                );
+
+
+            if (numeric <= 1) {
+
+                numeric =
+                    numeric * 100;
+
+            }
+
+
+            document.getElementById(
+                "confidence"
+            ).textContent =
+                `${numeric.toFixed(0)}%`;
+
+        }
+
+
+
+        /*
+            Render actual comparison.
+        */
+
+        renderComparison(
+            comparison
+        );
+
+
+
+        /*
+            Processing trace.
+        */
+
+        renderTrace(
+            comparison.trace ??
+            data.trace ??
+            null
+        );
+
+
+
+        /*
+            Show page.
+        */
+
+        loading.classList.add("hidden");
+
+        content.classList.remove("hidden");
+
+
+    } catch (err) {
+
+
+        console.error(
+            "COMPARISON ERROR:",
+            err
+        );
+
+
+        loading.classList.add("hidden");
+
+        error.classList.remove("hidden");
+
+
+        document.getElementById(
+            "error-message"
+        ).textContent =
+            err.message;
+
+    }
+
+}
+
+
+
+loadComparison();
+
+
+</script>
+
+
+</body>
+
+</html>
+

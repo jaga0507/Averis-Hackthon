@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TitanPort — Case Detail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#f6f7f8] text-[#17202a]">
+
+<div class="min-h-screen flex">
+
+    <aside class="w-60 bg-[#111c27] text-slate-300 fixed inset-y-0 flex flex-col">
+
+        <div class="px-6 py-6 border-b border-slate-700/60">
+
+            <div class="flex gap-3 items-center">
+
+                <div class="w-9 h-9 bg-slate-100 text-[#111c27] rounded grid place-items-center font-bold">
+                    TP
+                </div>
+
+                <div>
+                    <b class="text-white">TitanPort</b>
+
+                    <div class="text-[9px] tracking-[.18em] text-slate-500">
+                        DOCUMENT CONTROL
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <nav class="p-4 space-y-1 text-sm">
+
+            <a href="index.html"
+               class="block px-3 py-2.5 rounded hover:bg-slate-800">
+                Dashboard
+            </a>
+
+            <a href="cases.html"
+               class="block px-3 py-2.5 rounded hover:bg-slate-800">
+                Cases
+            </a>
+
+        </nav>
+
+        <div class="mt-auto p-4 text-[10px] text-slate-500">
+            TitanPort Operations · v1.0
+        </div>
+
+    </aside>
+
+    <main class="ml-60 flex-1">
+
+        <header class="h-20 bg-white border-b px-9 flex items-center">
+
+            <div>
+
+                <div class="text-[9px] tracking-[.16em] font-bold text-slate-400">
+                    CASE DETAIL
+                </div>
+
+                <h1 id="header-case-ref"
+                    class="text-xl font-semibold mt-1">
+                    Loading...
+                </h1>
+
+            </div>
+
+        </header>
+
+        <div id="case-content"
+             class="p-9 max-w-[1450px] mx-auto">
+
+            <div class="py-20 text-center text-sm text-slate-500">
+                Loading case...
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+const API_BASE = "http://localhost:8000";
+
+const params = new URLSearchParams(window.location.search);
+
+const caseId = params.get("id");
+
+if (!caseId) {
+    window.location.href = "cases.html";
+}
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatStatus(status) {
+
+    const value = String(status ?? "");
+
+    if (value === "RESOLVED" || value === "CLOSED") {
+        return `
+            <span class="px-3 py-1.5 rounded bg-emerald-500/15 text-emerald-300 text-xs font-bold">
+                ${escapeHtml(value)}
+            </span>
+        `;
+    }
+
+    if (value === "AWAITING_REVIEW" || value === "AWAITING REVIEW") {
+        return `
+            <span class="px-3 py-1.5 rounded bg-amber-500/15 text-amber-300 text-xs font-bold">
+                ${escapeHtml(value)}
+            </span>
+        `;
+    }
+
+    if (value === "AWAITING_DOCUMENT" || value === "AWAITING DOCUMENT") {
+        return `
+            <span class="px-3 py-1.5 rounded bg-orange-500/15 text-orange-300 text-xs font-bold">
+                ${escapeHtml(value)}
+            </span>
+        `;
+    }
+
+    return `
+        <span class="px-3 py-1.5 rounded bg-slate-500/20 text-slate-300 text-xs font-bold">
+            ${escapeHtml(value || "UNKNOWN")}
+        </span>
+    `;
+}
+
+function getDocuments(data) {
+    return data.documents ?? data.case?.documents ?? [];
+}
+
+function getEmails(data) {
+    return data.emails ?? data.case?.emails ?? [];
+}
+
+function getFields(data) {
+    return data.extracted_fields ??
+           data.extractedFields ??
+           data.fields ??
+           [];
+}
+
+function getActivities(data) {
+    return data.activities ?? [];
+}
+
+function getDecisions(data) {
+    return data.decisions ?? [];
+}
+
+function getAudit(data) {
+    return data.audit ?? [];
+}
+
+function renderDocuments(documents) {
+
+    if (!documents.length) {
+
+        return `
+            <div class="p-5 text-sm text-slate-500">
+                No documents found.
+            </div>
+        `;
+    }
+
+    return documents.map(document => `
+
+        <div class="border rounded-lg p-4 flex justify-between items-center">
+
+            <div>
+
+                <b class="text-sm">
+                    ${escapeHtml(document.file_name || "Unnamed document")}
+                </b>
+
+                <div class="text-xs text-slate-500 mt-1">
+
+                    ${escapeHtml(document.doc_type || "UNKNOWN")}
+
+                    · Version
+                    ${escapeHtml(document.version ?? "—")}
+
+                    ${document.is_current
+                        ? " · Current"
+                        : " · Previous"
+                    }
+
+                </div>
+
+            </div>
+
+            <span class="text-xs ${
+                document.is_current
+                    ? "text-emerald-700"
+                    : "text-slate-400"
+            }">
+
+                ${document.is_current ? "CURRENT" : "PREVIOUS"}
+
+            </span>
+
+        </div>
+
+    `).join("");
+}
+
+function renderEmails(emails) {
+
+    if (!emails.length) {
+
+        return `
+            <div class="text-sm text-slate-500">
+                No email found.
+            </div>
+        `;
+    }
+
+    const email = emails[emails.length - 1];
+
+    return `
+
+        <div class="space-y-4">
+
+            <div>
+                <span class="text-[10px] text-slate-400 block font-bold">
+                    FROM
+                </span>
+
+                <span class="text-sm">
+                    ${escapeHtml(email.sender || "—")}
+                </span>
+            </div>
+
+            <div>
+                <span class="text-[10px] text-slate-400 block font-bold">
+                    SUBJECT
+                </span>
+
+                <span class="text-sm">
+                    ${escapeHtml(email.subject || "—")}
+                </span>
+            </div>
+
+            <div class="bg-slate-50 rounded p-4 text-xs leading-5 text-slate-600 whitespace-pre-wrap">
+                ${escapeHtml(email.body_text || "No message body.")}
+            </div>
+
+        </div>
+    `;
+}
+
+function renderFields(fields) {
+
+    if (!fields.length) {
+
+        return `
+            <div class="p-5 text-sm text-slate-500">
+                No extracted fields found.
+            </div>
+        `;
+    }
+
+    return fields.map(field => `
+
+        <div class="grid grid-cols-[1fr_1.5fr_1.5fr_.8fr] px-5 py-4 border-t items-center">
+
+            <div>
+                <b class="text-xs">
+                    ${escapeHtml(field.field_name || "—")}
+                </b>
+            </div>
+
+            <div class="text-sm">
+                ${escapeHtml(field.raw_value || "—")}
+            </div>
+
+            <div class="text-sm">
+                ${escapeHtml(field.normalized_value || "—")}
+            </div>
+
+            <div class="text-xs">
+                ${field.confidence != null
+                    ? `${Math.round(Number(field.confidence) * 100)}%`
+                    : "—"
+                }
+            </div>
+
+        </div>
+
+    `).join("");
+}
+
+function renderActivities(activities) {
+
+    if (!activities.length) {
+
+        return `
+            <div class="p-5 text-sm text-slate-500">
+                No activities found.
+            </div>
+        `;
+    }
+
+    return activities.map(activity => `
+
+        <div class="flex gap-3">
+
+            <span class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-700 grid place-items-center text-xs">
+                ✓
+            </span>
+
+            <div>
+
+                <b class="text-sm">
+                    ${escapeHtml(activity.type || "ACTIVITY")}
+                </b>
+
+                <div class="text-xs text-slate-500 mt-1">
+
+                    ${escapeHtml(
+                        activity.status ||
+                        activity.result ||
+                        "Completed"
+                    )}
+
+                    ${activity.attempt_count
+                        ? ` · Attempt ${escapeHtml(activity.attempt_count)}`
+                        : ""
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `).join("");
+}
+
+function renderCase(data) {
+
+    const c = data.case ?? data;
+
+    const documents = getDocuments(data);
+    const emails = getEmails(data);
+    const fields = getFields(data);
+    const activities = getActivities(data);
+    const decisions = getDecisions(data);
+    const audit = getAudit(data);
+
+    document.title =
+        `TitanPort — Case ${c.case_ref ?? ""}`;
+
+    document.getElementById("header-case-ref").textContent =
+        c.case_ref || "Case";
+
+    document.getElementById("case-content").innerHTML = `
+
+        <a href="cases.html"
+           class="text-xs text-slate-500 hover:text-slate-700">
+            ← Back to cases
+        </a>
+
+        <section class="bg-[#111c27] text-white rounded-xl p-7 mt-4 flex justify-between">
+
+            <div>
+
+                <div class="text-xs text-slate-400 font-bold tracking-wider">
+                    ${escapeHtml(c.case_ref)}
+                </div>
+
+                <h2 class="text-2xl font-semibold mt-2">
+                    ${escapeHtml(c.title || "Untitled case")}
+                </h2>
+
+                <div class="flex gap-5 text-xs text-slate-400 mt-4">
+
+                    <span>
+                        Shipment:
+                        ${escapeHtml(c.shipment_ref || "—")}
+                    </span>
+
+                    <span>
+                        Sender:
+                        ${escapeHtml(c.sender || "—")}
+                    </span>
+
+                    <span>
+                        Documents:
+                        ${escapeHtml(c.document_count ?? documents.length)}
+                    </span>
+
+                    <span>
+                        Category:
+                        ${escapeHtml(c.category || "—")}
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="text-right">
+
+                ${formatStatus(c.status)}
+
+                <div class="text-xs text-slate-400 mt-3">
+                    Resolution:
+                    ${escapeHtml(c.resolution || "—")}
+                </div>
+
+            </div>
+
+        </section>
+
+        <div class="grid grid-cols-2 gap-5 mt-5">
+
+            <section class="bg-white border rounded-xl overflow-hidden">
+
+                <div class="px-5 py-4 border-b">
+                    <b class="text-sm">
+                        Source email
+                    </b>
+                </div>
+
+                <div class="p-5">
+                    ${renderEmails(emails)}
+                </div>
+
+            </section>
+
+            <section class="bg-white border rounded-xl overflow-hidden">
+
+                <div class="px-5 py-4 border-b">
+                    <b class="text-sm">
+                        Documents
+                    </b>
+                </div>
+
+                <div class="p-5 space-y-3">
+                    ${renderDocuments(documents)}
+                </div>
+
+            </section>
+
+        </div>
+
+        <section class="bg-white border rounded-xl mt-5 overflow-hidden">
+
+            <div class="px-5 py-4 border-b flex justify-between items-center">
+
+                <div>
+                    <b class="text-sm">
+                        Extracted fields
+                    </b>
+
+                    <div class="text-xs text-slate-500 mt-1">
+                        Values stored by the document extraction pipeline
+                    </div>
+                </div>
+
+                <a
+                    href="comparison.html?id=${encodeURIComponent(caseId)}"
+                    class="text-xs text-[#294b63] font-semibold"
+                >
+                    Open comparison profile →
+                </a>
+
+            </div>
+
+            <div class="grid grid-cols-[1fr_1.5fr_1.5fr_.8fr] px-5 py-3 bg-slate-50 text-[9px] font-bold tracking-wider text-slate-400">
+
+                <span>FIELD</span>
+                <span>RAW VALUE</span>
+                <span>NORMALIZED VALUE</span>
+                <span>CONFIDENCE</span>
+
+            </div>
+
+            ${renderFields(fields)}
+
+        </section>
+
+        <section class="bg-white border rounded-xl mt-5 overflow-hidden">
+
+            <div class="px-5 py-4 border-b">
+                <b class="text-sm">
+                    Processing activity
+                </b>
+            </div>
+
+            <div class="p-5 space-y-4">
+                ${renderActivities(activities)}
+            </div>
+
+        </section>
+
+        <section class="bg-white border rounded-xl mt-5 overflow-hidden">
+
+            <div class="px-5 py-4 border-b">
+                <b class="text-sm">
+                    Decisions
+                </b>
+            </div>
+
+            <div class="p-5">
+
+                ${
+                    decisions.length
+                    ? decisions.map(d => `
+                        <div class="border-b last:border-b-0 py-3">
+
+                            <b class="text-xs">
+                                ${escapeHtml(d.decision_type || d.type || "DECISION")}
+                            </b>
+
+                            <div class="text-xs text-slate-500 mt-1">
+                                ${escapeHtml(
+                                    d.reason ||
+                                    d.note ||
+                                    d.status ||
+                                    ""
+                                )}
+                            </div>
+
+                        </div>
+                    `).join("")
+                    : `
+                        <div class="text-sm text-slate-500">
+                            No decisions recorded.
+                        </div>
+                    `
+                }
+
+            </div>
+
+        </section>
+
+        <section class="bg-white border rounded-xl mt-5 overflow-hidden">
+
+            <div class="px-5 py-4 border-b">
+                <b class="text-sm">
+                    Audit history
+                </b>
+            </div>
+
+            <div class="p-5">
+
+                ${
+                    audit.length
+                    ? audit.map(a => `
+                        <div class="border-b last:border-b-0 py-3">
+
+                            <b class="text-xs">
+                                ${escapeHtml(
+                                    a.action ||
+                                    a.event_type ||
+                                    "AUDIT EVENT"
+                                )}
+                            </b>
+
+                            <div class="text-xs text-slate-500 mt-1">
+                                ${escapeHtml(
+                                    a.actor ||
+                                    a.actor_type ||
+                                    "SYSTEM"
+                                )}
+
+                                ${
+                                    a.created_at
+                                    ? ` · ${escapeHtml(a.created_at)}`
+                                    : ""
+                                }
+                            </div>
+
+                        </div>
+                    `).join("")
+                    : `
+                        <div class="text-sm text-slate-500">
+                            No audit entries found.
+                        </div>
+                    `
+                }
+
+            </div>
+
+        </section>
+
+    `;
+}
+
+async function loadCase() {
+
+    try {
+
+        const response = await fetch(
+            `${API_BASE}/cases/${encodeURIComponent(caseId)}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        console.log("CASE DATA:", data);
+
+        renderCase(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("case-content").innerHTML = `
+
+            <div class="bg-red-50 border border-red-200 rounded-xl p-8">
+
+                <div class="font-semibold text-red-700">
+                    Failed to load case
+                </div>
+
+                <div class="text-sm text-red-600 mt-2">
+                    ${escapeHtml(error.message)}
+                </div>
+
+                <a href="cases.html"
+                   class="inline-block mt-5 text-xs text-red-700 underline">
+                    Return to cases
+                </a>
+
+            </div>
+
+        `;
+    }
+}
+
+loadCase();
+
+</script>
+
+</body>
+</html>
