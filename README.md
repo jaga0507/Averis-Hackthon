@@ -1,6 +1,7 @@
 TitanPort
 
-Master → Extraction, Classification and Comparison of SI and BL → Draft Kirtanan → Chatbot
+Master → Extraction, Classification and Comparison of SI and BL → Draft
+Kirtanan → Chatbot
 
 TitanPort is a system for email/document processing, extraction, classification, and comparison of Shipping Instructions (SI) and Bills of Lading (BL).
 
